@@ -19,7 +19,7 @@ export const SpeakerCard = ({speaker}:SpeakerCardProps) => {
         </Avatar>
         <CardHeader className='w-full'>
             <CardTitle><Link href={`/speakers/${speaker.id}`}>{speaker.name}</Link></CardTitle>
-            <CardDescription className='text-ellipsis'>{speaker.bio}</CardDescription>
+            <CardDescription className='line-clamp-1'>{speaker.bio}</CardDescription>
         </CardHeader>
         </CardContent>
     </Card>

@@ -2,6 +2,7 @@ import { BackButton } from '@/components/bloc/back-button'
 import { SpeakerCard } from '@/components/speaker/speaker-card'
 import { sessions } from '@/mocks/session'
 import { speakers } from '@/mocks/speaker'
+import Link from 'next/link'
 
 type SessionPageProps = {
   params: Promise<{ session_id: string }>
@@ -36,7 +37,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
         <div>
           {session.speakerIds.map(speakerId => {
             const speaker = speakers.find(s => s.id === speakerId)
-            return speaker ? <SpeakerCard key={speaker.id} speaker={speaker} /> : null
+            return speaker ? <Link key={speaker.id} href={`/speakers/${speaker.id}`}><SpeakerCard  speaker={speaker} /></Link> : null
           })}
         </div>
       </div>

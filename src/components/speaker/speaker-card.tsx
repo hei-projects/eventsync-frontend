@@ -18,7 +18,7 @@ export const SpeakerCard = ({speaker}:SpeakerCardProps) => {
             <AvatarFallback>{getInitials(speaker.name)}</AvatarFallback>
         </Avatar>
         <CardHeader className='w-full'>
-            <CardTitle><Link href={`/speakers/${speaker.id}`}>{speaker.name}</Link></CardTitle>
+            <CardTitle>{speaker.name}</CardTitle>
             <CardDescription className='line-clamp-1'>{speaker.bio}</CardDescription>
         </CardHeader>
         </CardContent>

@@ -1,4 +1,5 @@
 import { BackButton } from '@/components/bloc/back-button'
+import { QuestionInput } from '@/components/session/question-input'
 import { SpeakerCard } from '@/components/speaker/speaker-card'
 import { sessions } from '@/mocks/session'
 import { speakers } from '@/mocks/speaker'
@@ -27,7 +28,11 @@ export default async function SessionPage({ params }: SessionPageProps) {
         </div>
 
         <div className='h-full'>
-          <h2 className='text-xl font-semibold'>Questions</h2>
+          <h2 className='text-xl font-semibold mb-4'>Questions</h2>
+          <div>
+            {/* TODO: list questions */}
+          </div>
+          <QuestionInput/>
         </div>
       </div>
 

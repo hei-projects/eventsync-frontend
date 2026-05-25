@@ -4,7 +4,7 @@ export const speakers: Speaker[] = [
   {
     id: "SP1",
     name: "Alice Martin",
-    imageUrl: "/speakers/alice-martin.jpg",
+    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCleNRmXgFXfK9SZSwkML-fQSW63mdrcEhOA&s",
     bio: "Experte en développement frontend et UX.",
     socialLinks: [
       { label: "LinkedIn", link: "https://linkedin.com/in/alicemartin" },

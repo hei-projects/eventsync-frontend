@@ -19,8 +19,8 @@ export default async function SpeakersPage({params}:SpeakersPageProps ) {
 
     return (
         <div className="space-y-4">
-            <div className="relative w-32 aspect-square rounded-full overflow-hidden">
-                <img src={speaker.imageUrl} alt={speaker.name} className="absolute top-0 left-0 w-full h-full object-cover" />
+            <div className="relative w-32 aspect-square rounded-full overflow-hidden bg-muted">
+                <img src={speaker.imageUrl} alt={speaker.name} className="absolute inset-0 w-full h-full object-cover" />
             </div>
             <h1 className="text-2xl font-bold mt-2">{speaker.name}</h1>
             <p className="text-muted-foreground">{speaker.bio}</p>

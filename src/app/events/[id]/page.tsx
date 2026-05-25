@@ -1,3 +1,4 @@
+import { BackButton } from "@/components/bloc/back-button";
 import { EventCard } from "@/components/event/event-card";
 import { SessionCard } from "@/components/session/session-card";
 import { events } from "@/mocks/event";
@@ -32,8 +33,9 @@ export default async function EventPage({
 
   return (
     <div className="p-6">
+      <BackButton/>
       <h1 className="text-2xl font-bold mb-4">
-        EventPage, {event.title}
+        {event.title}
       </h1>
 
       <EventCard event={event} />

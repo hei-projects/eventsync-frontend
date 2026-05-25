@@ -1,4 +1,7 @@
+import { BackButton } from "@/components/bloc/back-button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { getInitials } from "@/lib/name";
 import { speakers } from "@/mocks/speaker";
 
 type SpeakersPageProps = {
@@ -19,9 +22,11 @@ export default async function SpeakersPage({params}:SpeakersPageProps ) {
 
     return (
         <div className="space-y-4">
-            <div className="relative w-32 aspect-square rounded-full overflow-hidden bg-muted">
-                <img src={speaker.imageUrl} alt={speaker.name} className="absolute inset-0 w-full h-full object-cover" />
-            </div>
+            <BackButton />
+            <Avatar className="size-32">
+                <AvatarImage src={speaker.imageUrl} alt={speaker.name}/>
+                <AvatarFallback>{getInitials(speaker.name)}</AvatarFallback>
+            </Avatar>
             <h1 className="text-2xl font-bold mt-2">{speaker.name}</h1>
             <p className="text-muted-foreground">{speaker.bio}</p>
 

@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html className={cn("font-sans", inter.variable)}>
       <body>
-        <main className="ml-72 pt-16 min-h-screen p-8">   {/* pt-16 pour la topbar */}
+        <main className="p-6 w-full h-full">
           {children}
         </main>
       </body>

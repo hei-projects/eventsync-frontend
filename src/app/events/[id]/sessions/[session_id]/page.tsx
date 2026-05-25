@@ -18,7 +18,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
   }
 
   return (
-    <div className='h-full w-full grid grid-cols-[1fr_320px] gap-4'>
+    <div className='h-full w-full min-h-screen grid grid-cols-[1fr_320px] gap-4'>
       <div className='flex flex-col gap-6'>
         <div className='h-fit'>
           <BackButton />
@@ -34,7 +34,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
 
       <div className='h-full'>
         <h2 className='text-xl font-semibold'>Speakers</h2>
-        <div>
+        <div className='flex flex-col gap-4'>
           {session.speakerIds.map(speakerId => {
             const speaker = speakers.find(s => s.id === speakerId)
             return speaker ? <Link key={speaker.id} href={`/speakers/${speaker.id}`}><SpeakerCard speaker={speaker} /></Link> : null

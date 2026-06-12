@@ -1,51 +1,61 @@
-import { BackButton } from '@/components/bloc/back-button'
-import { QuestionInput } from '@/components/session/question-input'
-import { SpeakerCard } from '@/components/speaker/speaker-card'
-import { sessions } from '@/mocks/session'
-import { speakers } from '@/mocks/speaker'
-import Link from 'next/link'
+import { BackButton } from "@/components/bloc/back-button"
+import { QuestionArea } from "@/components/session/question-area"
+import { SpeakerCard } from "@/components/speaker/speaker-card"
+import { LiveBadge } from "@/components/session/live-badge"
+import { getSession, getSpeakers, getQuestions } from "@/lib/api"
+import Link from "next/link"
 
-type SessionPageProps = {
-  params: Promise<{ session_id: string }>
-}
+type Props = { params: Promise<{ session_id: string }> }
 
-export default async function SessionPage({ params }: SessionPageProps) {
+export default async function SessionPage({ params }: Props) {
   const { session_id } = await params
-
-  const session = sessions.find(s => s.id.toLowerCase() === session_id.toLowerCase())
-
-  if (!session) {
-    return <p>Session not found</p>
-  }
+  const session = await getSession(Number(session_id))
+  const speakers = (await getSpeakers()).filter((s) =>
+    session.speakerNames.includes(s.fullName)
+  )
+  const questions = session.live ? await getQuestions(session.id) : []
 
   return (
-    <div className='h-full w-full min-h-screen grid grid-cols-[1fr_320px] gap-4'>
-      <div className='flex flex-col gap-6'>
-        <div className='h-fit'>
-          <BackButton />
-          <h1 className='text-2xl font-bold'>{session.title}</h1>
-          <p className='text-muted-foreground'>{session.description}</p>
-        </div>
-
-        <div className='h-full'>
-          <h2 className='text-xl font-semibold mb-4'>Questions</h2>
-          <div>
-            {/* TODO: list questions */}
+    <div className="grid grid-cols-[1fr_320px] gap-6">
+      <div className="space-y-6">
+        <BackButton />
+        <div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold">{session.title}</h1>
+            {session.live && <LiveBadge />}
           </div>
-          <QuestionInput/>
+          <p className="text-muted-foreground mt-1">{session.description}</p>
+          <div className="flex flex-wrap gap-4 mt-2 text-sm text-muted-foreground">
+            <span>🕐 {new Date(session.startTime).toLocaleTimeString()} - {new Date(session.endTime).toLocaleTimeString()}</span>
+            {session.roomName && <span>📍 {session.roomName}</span>}
+            {session.capacity != null && <span>👥 Capacité : {session.capacity}</span>}
+          </div>
         </div>
+
+        {session.live && (
+          <section>
+            <h2 className="text-xl font-semibold mb-4">Questions</h2>
+            <QuestionArea sessionId={session.id} initialQuestions={questions} />
+          </section>
+        )}
+
+        {!session.live && session.startTime && new Date(session.startTime) > new Date() && (
+          <p className="text-muted-foreground text-sm">
+            Les questions seront disponibles quand la session commencera.
+          </p>
+        )}
       </div>
 
-
-      <div className='h-full'>
-        <h2 className='text-xl font-semibold'>Speakers</h2>
-        <div className='flex flex-col gap-4'>
-          {session.speakerIds.map(speakerId => {
-            const speaker = speakers.find(s => s.id === speakerId)
-            return speaker ? <Link key={speaker.id} href={`/speakers/${speaker.id}`}><SpeakerCard speaker={speaker} /></Link> : null
-          })}
+      <aside className="space-y-4">
+        <h2 className="text-xl font-semibold">Intervenants</h2>
+        <div className="flex flex-col gap-4">
+          {speakers.map((speaker) => (
+            <Link key={speaker.id} href={`/speakers/${speaker.id}`}>
+              <SpeakerCard speaker={speaker} />
+            </Link>
+          ))}
         </div>
-      </div>
+      </aside>
     </div>
   )
 }

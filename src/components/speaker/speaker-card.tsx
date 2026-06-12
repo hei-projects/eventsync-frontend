@@ -1,27 +1,21 @@
-import { Speaker } from '@/types/speaker'
-import React from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
-import { getInitials } from '@/lib/name'
-import Link from 'next/link'
+import type { Speaker } from "@/lib/types"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { getInitials } from "@/lib/utils"
 
-type SpeakerCardProps = {
-    speaker: Speaker
-}
+type Props = { speaker: Speaker }
 
-export const SpeakerCard = ({speaker}:SpeakerCardProps) => {
-  return (
-    <Card >
-        <CardContent className='flex flex-row items-center'>
-        <Avatar size='lg'>
-            <AvatarImage src={speaker.imageUrl}/>
-            <AvatarFallback>{getInitials(speaker.name)}</AvatarFallback>
-        </Avatar>
-        <CardHeader className='w-full'>
-            <CardTitle>{speaker.name}</CardTitle>
-            <CardDescription className='line-clamp-1'>{speaker.bio}</CardDescription>
-        </CardHeader>
-        </CardContent>
-    </Card>
-  )
-}
+export const SpeakerCard = ({ speaker }: Props) => (
+  <Card>
+    <CardContent className="flex flex-row items-center">
+      <Avatar size="lg">
+        <AvatarImage src={speaker.profilePicture || undefined} />
+        <AvatarFallback>{getInitials(speaker.fullName)}</AvatarFallback>
+      </Avatar>
+      <CardHeader className="w-full">
+        <CardTitle>{speaker.fullName}</CardTitle>
+        <CardDescription className="line-clamp-1">{speaker.biography}</CardDescription>
+      </CardHeader>
+    </CardContent>
+  </Card>
+)

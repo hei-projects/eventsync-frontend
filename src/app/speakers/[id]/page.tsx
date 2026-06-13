@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { getInitials } from "@/lib/utils"
 import { getSpeaker, getSessions } from "@/lib/api"
-import { Globe, Github, Linkedin } from "lucide-react"
+import { Globe, Linkedin, Code2 } from "lucide-react"
 import Link from "next/link"
 import { SessionCard } from "@/components/session/session-card"
 
@@ -44,7 +44,7 @@ export default async function SpeakerPage({ params }: Props) {
             {speaker.github && (
               <Button variant="outline" size="sm" asChild>
                 <a href={speaker.github} target="_blank" rel="noopener noreferrer">
-                  <Github className="size-4 mr-1" /> GitHub
+                  <Code2 className="size-4 mr-1" /> GitHub
                 </a>
               </Button>
             )}

@@ -1,59 +1,62 @@
-import { BackButton } from "@/components/bloc/back-button";
-import { EventCard } from "@/components/event/event-card";
-import { SessionCard } from "@/components/session/session-card";
-import { events } from "@/mocks/event";
-import { sessions } from "@/mocks/session";
-import Link from "next/link";
-import React from "react";
+import { BackButton } from "@/components/bloc/back-button"
+import { SessionCard } from "@/components/session/session-card"
+import { getEvent, getEventSchedules, getLiveSessions } from "@/lib/api"
+import Link from "next/link"
+import { LiveBadge } from "@/components/session/live-badge"
+import { CalendarIcon } from "lucide-react"
 
-type EventPageProps = {
-  params: Promise<{ id: string }>;
-};
+type Props = { params: Promise<{ id: string }> }
 
-export default async function EventPage({
-  params,
-}: EventPageProps) {
-  const { id } = await params;
-
-  // Chercher l'événement correspondant à l'id
-  const event = events.find((event) => event.id === id);
-
-  // Si aucun événement trouvé
-  if (!event) {
-    return (
-      <div className="p-6 text-red-500">
-        Événement introuvable
-      </div>
-    );
-  }
- // récupérer les sessions liées à cet event
-  const eventSessions = sessions.filter((session) =>
-    event.sessionIds?.includes(session.id)
-  );
+export default async function EventPage({ params }: Props) {
+  const { id } = await params
+  const event = await getEvent(Number(id))
+  const sessions = await getEventSchedules(event.id)
+  const liveSessions = await getLiveSessions(event.id)
 
   return (
-    <div className="p-6">
-      <BackButton/>
-      <h1 className="text-2xl font-bold mb-4">
-        {event.title}
-      </h1>
+    <div>
+      <BackButton />
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mt-2">{event.title}</h1>
+        <p className="text-muted-foreground mt-1">{event.description}</p>
+        <div className="flex flex-wrap gap-4 mt-2 text-sm text-muted-foreground items-center">
+          <span>📍 {event.location}</span>
+          <span>📅 {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}</span>
+          <Link
+            href={`/events/${event.id}/schedule`}
+            className="inline-flex items-center gap-1 text-primary hover:underline"
+          >
+            <CalendarIcon className="size-4" />
+            Vue planning
+          </Link>
+        </div>
+      </div>
 
-      <EventCard event={event} />
+      {liveSessions.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
+            <LiveBadge /> En ce moment
+          </h2>
+          <div className="grid gap-4 md:grid-cols-2">
+            {liveSessions.map((s) => (
+              <Link key={s.id} href={`/events/${event.id}/sessions/${s.id}`}>
+                <SessionCard session={s} />
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
-      {/* SESSIONS */}
-      <div className="mt-6">
-        <h2 className="text-xl font-semibold mb-3">
-          Sessions
-        </h2>
-
-         <div className="grid gap-4 md:grid-cols-2">
-          {eventSessions.map((session) => (
-            <Link key={session.id} href={`/events/${event.id}/sessions/${session.id}`} >
+      <section>
+        <h2 className="text-xl font-semibold mb-3">Planning</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          {sessions.map((session) => (
+            <Link key={session.id} href={`/events/${event.id}/sessions/${session.id}`}>
               <SessionCard session={session} />
             </Link>
           ))}
         </div>
-      </div>
+      </section>
     </div>
-  );
+  )
 }

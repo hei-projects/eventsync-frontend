@@ -6,14 +6,21 @@ export default async function EventsPage() {
   const events = await getEvents()
 
   return (
-    <div>
+    <div>  
       <h1 className="text-3xl font-bold mb-6">Événements</h1>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {events.map((event) => (
-          <Link key={event.id} href={`/events/${event.id}`}>
-            <EventCard event={event} />
-          </Link>
-        ))}
+
+      <div className="p-6"> {/* 2ème div */}
+        <h1 className="text-3xl font-bold mb-8 text-[#5375CA] text-center">
+          Événements
+        </h1>
+
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {events.map((event) => (
+            <Link key={event.id} href={`/events/${event.id}`}>
+              <EventCard event={event} />
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   )

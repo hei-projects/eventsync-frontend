@@ -4,17 +4,23 @@ import Image from 'next/image'
 import { ArrowLeft, Twitter, Github, Linkedin, Globe } from 'lucide-react'
 import { GlassCard, Tag } from '@/components/ui'
 import { SessionCard } from '@/components/sessions/SessionCard'
-import { speakers, sessions } from '@/data'
+import { getSessions, getSpeaker, getSpeakers } from '@/lib/api'
+import { toFrontendSpeaker, toFrontendSession } from '@/lib/adapters'
 
-export function generateStaticParams() {
-  return speakers.map(s => ({ id: s.id }))
-}
+export const dynamic = 'force-dynamic'
 
-export default function SpeakerProfilePage({ params }: { params: { id: string } }) {
-  const speaker = speakers.find(s => s.id === params.id)
+export default async function SpeakerProfilePage({ params }: { params: { id: string } }) {
+  const id = Number(params.id)
+  const [beSpeaker, beAllSessions, beAllSpeakers] = await Promise.all([
+    getSpeaker(id).catch(() => null),
+    getSessions().catch(() => []),
+    getSpeakers().catch(() => []),
+  ])
+  const speaker = beSpeaker ? toFrontendSpeaker(beSpeaker) : null
   if (!speaker) notFound()
-
-  const speakerSessions = sessions.filter(s => s.speakerIds.includes(speaker.id))
+  const allSessions = beAllSessions.map(toFrontendSession)
+  const speakerSessions = allSessions.filter(s => s.speakerIds.includes(speaker.id))
+  const allSpeakers = beAllSpeakers.map(toFrontendSpeaker)
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-4 sm:px-6">
@@ -65,7 +71,7 @@ export default function SpeakerProfilePage({ params }: { params: { id: string } 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {speakerSessions.map((session, i) => (
               <SessionCard key={session.id} session={session} index={i}
-                speakers={speakers.filter(sp => session.speakerIds.includes(sp.id))} />
+                speakers={allSpeakers.filter(sp => session.speakerIds.includes(sp.id))} />
             ))}
           </div>
         </div>

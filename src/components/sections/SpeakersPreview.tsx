@@ -3,9 +3,11 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight } from 'lucide-react'
-import { speakers } from '@/data'
+import type { Speaker } from '@/types'
 
-export function SpeakersPreview() {
+type Props = { speakers: Speaker[] }
+
+export function SpeakersPreview({ speakers }: Props) {
   return (
     <section className="py-24 px-6 max-w-7xl mx-auto">
       <div className="flex items-end justify-between mb-12">

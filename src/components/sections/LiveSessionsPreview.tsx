@@ -1,10 +1,12 @@
 'use client'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { sessions, speakers } from '@/data'
 import { SessionCard } from '@/components/sessions/SessionCard'
+import type { Session, Speaker } from '@/types'
 
-export function LiveSessionsPreview() {
+type Props = { sessions: Session[]; speakers: Speaker[] }
+
+export function LiveSessionsPreview({ sessions, speakers }: Props) {
   const live = sessions.filter(s => s.isLive).slice(0, 3)
   if (live.length === 0) return null
   return (

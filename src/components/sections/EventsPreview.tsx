@@ -1,10 +1,12 @@
 'use client'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { events } from '@/data'
 import { EventCard } from '@/components/events/EventCard'
+import type { Event } from '@/types'
 
-export function EventsPreview() {
+type Props = { events: Event[] }
+
+export function EventsPreview({ events }: Props) {
   return (
     <section className="py-20 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">

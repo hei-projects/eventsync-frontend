@@ -1,14 +1,31 @@
 'use client'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { Bookmark, CalendarX, ArrowRight } from 'lucide-react'
 import { SessionCard } from '@/components/sessions/SessionCard'
 import { useFavorites } from '@/hooks/useFavorites'
-import { sessions, speakers } from '@/data'
 import { LiveDot } from '@/components/ui/LiveDot'
+import { getSessions, getSpeakers } from '@/lib/api'
+import { toFrontendSession, toFrontendSpeaker } from '@/lib/adapters'
+import type { Session, Speaker } from '@/types'
 
 export default function FavoritesPage() {
   const { favorites, toggle, isFavorite } = useFavorites()
+  const [sessions, setSessions] = useState<Session[]>([])
+  const [speakers, setSpeakers] = useState<Speaker[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    Promise.all([
+      getSessions().catch(() => []),
+      getSpeakers().catch(() => []),
+    ]).then(([beSess, beSp]) => {
+      setSessions(beSess.map(toFrontendSession))
+      setSpeakers(beSp.map(toFrontendSpeaker))
+    }).finally(() => setLoading(false))
+  }, [])
+
   const favSessions = sessions.filter(s => favorites.includes(s.id))
   const live = favSessions.filter(s => s.isLive)
   const upcoming = favSessions.filter(s => !s.isLive)
@@ -31,11 +48,22 @@ export default function FavoritesPage() {
             </div>
           </div>
           <p className="text-white/40 text-sm mt-2 pl-[52px]">
-            {favSessions.length} session{favSessions.length !== 1 ? 's' : ''} bookmarked
+            {loading ? 'Loading...' : `${favSessions.length} session${favSessions.length !== 1 ? 's' : ''} bookmarked`}
           </p>
         </motion.div>
 
-        {favSessions.length === 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <div key={i} className="glass-card rounded-2xl p-5 animate-pulse">
+                <div className="h-4 bg-white/5 rounded w-1/4 mb-3" />
+                <div className="h-5 bg-white/5 rounded w-2/3 mb-4" />
+                <div className="h-3 bg-white/5 rounded w-full mb-2" />
+                <div className="h-3 bg-white/5 rounded w-3/4" />
+              </div>
+            ))}
+          </div>
+        ) : favSessions.length === 0 ? (
           <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}
             className="glass-card rounded-3xl p-16 text-center">
             <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-6">

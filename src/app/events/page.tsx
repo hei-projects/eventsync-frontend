@@ -1,16 +1,27 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Search, Filter, Radio } from 'lucide-react'
 import { EventCard } from '@/components/events/EventCard'
 import { SectionHeader } from '@/components/ui'
-import { events } from '@/data'
+import { getEvents } from '@/lib/api'
+import { toFrontendEvent } from '@/lib/adapters'
+import type { Event } from '@/types'
 
 const statuses = ['All', 'live', 'upcoming', 'past']
 
 export default function EventsPage() {
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('All')
+  const [events, setEvents] = useState<Event[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    getEvents()
+      .then(be => setEvents(be.map(toFrontendEvent)))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
 
   const filtered = events.filter(e => {
     const matchesSearch = !search ||
@@ -52,10 +63,21 @@ export default function EventsPage() {
         </motion.div>
 
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-white/30 text-sm mb-6 font-mono">
-          {filtered.length} event{filtered.length !== 1 ? 's' : ''} found
+          {loading ? 'Loading...' : `${filtered.length} event${filtered.length !== 1 ? 's' : ''} found`}
         </motion.p>
 
-        {filtered.length > 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="glass-card rounded-2xl p-5 animate-pulse">
+                <div className="h-4 bg-white/5 rounded w-1/3 mb-3" />
+                <div className="h-6 bg-white/5 rounded w-2/3 mb-4" />
+                <div className="h-3 bg-white/5 rounded w-full mb-2" />
+                <div className="h-3 bg-white/5 rounded w-3/4" />
+              </div>
+            ))}
+          </div>
+        ) : filtered.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {filtered.map((event, i) => <EventCard key={event.id} event={event} index={i} />)}
           </div>

@@ -1,13 +1,24 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Search } from 'lucide-react'
 import { SpeakerCard } from '@/components/speakers/SpeakerCard'
 import { SectionHeader } from '@/components/ui'
-import { speakers } from '@/data'
+import { getSpeakers } from '@/lib/api'
+import { toFrontendSpeaker } from '@/lib/adapters'
+import type { Speaker } from '@/types'
 
 export default function SpeakersPage() {
   const [search, setSearch] = useState('')
+  const [speakers, setSpeakers] = useState<Speaker[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    getSpeakers()
+      .then(be => setSpeakers(be.map(toFrontendSpeaker)))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
 
   const filtered = speakers.filter(sp =>
     !search ||
@@ -31,12 +42,29 @@ export default function SpeakersPage() {
         </motion.div>
 
         <p className="text-white/30 text-sm mb-6 font-mono text-center">
-          {filtered.length} speaker{filtered.length !== 1 ? 's' : ''}
+          {loading ? 'Loading...' : `${filtered.length} speaker${filtered.length !== 1 ? 's' : ''}`}
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filtered.map((sp, i) => <SpeakerCard key={sp.id} speaker={sp} index={i} />)}
-        </div>
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="glass-card rounded-2xl p-5 animate-pulse">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-full bg-white/5" />
+                  <div className="flex-1">
+                    <div className="h-4 bg-white/5 rounded w-2/3 mb-2" />
+                    <div className="h-3 bg-white/5 rounded w-1/2" />
+                  </div>
+                </div>
+                <div className="h-3 bg-white/5 rounded w-full mt-4" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filtered.map((sp, i) => <SpeakerCard key={sp.id} speaker={sp} index={i} />)}
+          </div>
+        )}
       </div>
     </div>
   )

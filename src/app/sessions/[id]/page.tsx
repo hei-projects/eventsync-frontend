@@ -7,19 +7,23 @@ import { QASystem } from '@/components/qa/QASystem'
 import { FavoriteButton } from '@/components/sessions/FavoriteButton'
 import { CapacityBar } from '@/components/sessions/CapacityBar'
 import { LiveGlow } from '@/components/ui/LiveGlow'
-import { sessions, speakers, questions } from '@/data'
+import { getSession, getSessionSpeakers, getQuestions } from '@/lib/api'
+import { toFrontendSession, toFrontendSpeaker, toFrontendQuestion } from '@/lib/adapters'
 import { formatTime, getTrackColor, cn } from '@/lib/utils'
 
-export function generateStaticParams() {
-  return sessions.map(s => ({ id: s.id }))
-}
+export const dynamic = 'force-dynamic'
 
-export default function SessionDetailPage({ params }: { params: { id: string } }) {
-  const session = sessions.find(s => s.id === params.id)
+export default async function SessionDetailPage({ params }: { params: { id: string } }) {
+  const id = Number(params.id)
+  const [beSession, beSpeakers, beQuestions] = await Promise.all([
+    getSession(id).catch(() => null),
+    getSessionSpeakers(id).catch(() => []),
+    getQuestions(id).catch(() => []),
+  ])
+  const session = beSession ? toFrontendSession(beSession) : null
   if (!session) notFound()
-
-  const sessionSpeakers = speakers.filter(sp => session.speakerIds.includes(sp.id))
-  const sessionQuestions = questions.filter(q => q.sessionId === session.id)
+  const sessionSpeakers = beSpeakers.map(toFrontendSpeaker)
+  const sessionQuestions = beQuestions.map(toFrontendQuestion)
   const color = getTrackColor(session.track)
   const capacityPct = Math.round((session.enrolled / session.capacity) * 100)
 

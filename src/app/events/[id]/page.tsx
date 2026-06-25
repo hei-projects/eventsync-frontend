@@ -6,18 +6,26 @@ import { LiveBadge, GlassCard, StatCard, Tag, LiveDot } from '@/components/ui'
 import { SessionCard } from '@/components/sessions/SessionCard'
 import { SpeakerCard } from '@/components/speakers/SpeakerCard'
 import { PlanningGrid } from '@/components/sessions/PlanningGrid'
-import { events, sessions, speakers } from '@/data'
 import { formatDateRange } from '@/lib/utils'
+import { getEvent, getEventSessions, getSpeakers } from '@/lib/api'
+import { toFrontendEvent, toFrontendSession, toFrontendSpeaker } from '@/lib/adapters'
 
-export function generateStaticParams() {
-  return events.map(e => ({ id: e.id }))
-}
+export const dynamic = 'force-dynamic'
 
-export default function EventDetailPage({ params }: { params: { id: string } }) {
-  const event = events.find(e => e.id === params.id)
+export default async function EventDetailPage({ params }: { params: { id: string } }) {
+  const { id } = params
+  const [beEvent, beSessions, beSpeakers] = await Promise.all([
+    getEvent(Number(id)).catch(() => null),
+    getEventSessions(Number(id)).catch(() => []),
+    getSpeakers().catch(() => []),
+  ])
+
+  const event = beEvent ? toFrontendEvent(beEvent) : null
   if (!event) notFound()
 
-  const eventSessions = sessions.filter(s => s.eventId === event.id)
+  const sessions = beSessions.map(toFrontendSession)
+  const speakers = beSpeakers.map(toFrontendSpeaker)
+  const eventSessions = sessions
   const liveSessions = eventSessions.filter(s => s.isLive)
   const speakerIds = Array.from(new Set(eventSessions.flatMap(s => s.speakerIds)))
   const eventSpeakers = speakers.filter(sp => speakerIds.includes(sp.id))

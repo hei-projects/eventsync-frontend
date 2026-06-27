@@ -1,22 +1,32 @@
 'use client'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronUp, Send, EyeOff, MessageSquareText, CheckCircle2 } from 'lucide-react'
+import { ChevronUp, Send, EyeOff, MessageSquareText, CheckCircle2, Loader2 } from 'lucide-react'
 import { useQA } from '@/hooks/useQA'
 import { timeAgo, cn } from '@/lib/utils'
 import type { Question } from '@/types'
 
 export function QASystem({ sessionId, initialQuestions }: { sessionId: string; initialQuestions: Question[] }) {
-  const { questions, addQuestion, upvote } = useQA(initialQuestions)
+  const { questions, addQuestion, upvote, isOnCooldown } = useQA(initialQuestions, sessionId)
   const [text, setText] = useState('')
   const [name, setName] = useState('')
   const [anon, setAnon] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!text.trim()) return
-    addQuestion(text.trim(), name.trim(), anon)
-    setText('')
+    if (!text.trim() || submitting) return
+    setSubmitting(true)
+    setError(null)
+    try {
+      await addQuestion(text.trim(), name.trim(), anon)
+      setText('')
+    } catch {
+      setError('Failed to submit question. Please try again.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -46,11 +56,16 @@ export function QASystem({ sessionId, initialQuestions }: { sessionId: string; i
               <EyeOff className="w-3.5 h-3.5" /> Anonymous
             </button>
           </div>
-          <button type="submit" className="btn-primary text-xs py-2 px-4">
-            <Send className="w-3.5 h-3.5" /> Submit
+          <button type="submit" disabled={submitting} className="btn-primary text-xs py-2 px-4 disabled:opacity-50 disabled:cursor-not-allowed">
+            {submitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+            {submitting ? ' Sending...' : ' Submit'}
           </button>
         </div>
       </form>
+
+      {error && (
+        <p className="text-red-400 text-xs font-mono text-center">{error}</p>
+      )}
 
       {/* Question count */}
       <div className="flex items-center gap-2 text-white/40 text-sm">
@@ -73,9 +88,11 @@ export function QASystem({ sessionId, initialQuestions }: { sessionId: string; i
             >
               <button
                 onClick={() => upvote(q.id)}
+                disabled={isOnCooldown(q.id)}
                 className={cn(
                   'flex flex-col items-center justify-center gap-0.5 w-12 h-14 rounded-xl border transition-all shrink-0',
-                  q.userVoted ? 'bg-purple-500/20 border-purple-500/40 text-purple-light' : 'border-white/10 text-white/40 hover:border-purple-500/30 hover:text-purple-light'
+                  q.userVoted ? 'bg-purple-500/20 border-purple-500/40 text-purple-light' : 'border-white/10 text-white/40 hover:border-purple-500/30 hover:text-purple-light',
+                  isOnCooldown(q.id) && 'opacity-40 cursor-not-allowed'
                 )}
               >
                 <motion.div whileTap={{ scale: 1.3 }}>
